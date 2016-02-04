@@ -19,7 +19,7 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
+from ryu.lib.packet import ethernet, arp
 from ryu.lib.packet import ether_types
 
 
@@ -63,6 +63,10 @@ class SimpleSwitch13(app_manager.RyuApp):
                                     match=match, instructions=inst)
         datapath.send_msg(mod)
 
+    def verbose_packet(self, pkt):
+        for p in pkt.protocols:
+            print p
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
         # If you hit this you might want to increase
@@ -77,7 +81,15 @@ class SimpleSwitch13(app_manager.RyuApp):
         in_port = msg.match['in_port']
 
         pkt = packet.Packet(msg.data)
+        self.verbose_packet(pkt)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
+        ips = pkt.get_protocols(arp.arp)[0]
+        print ips.dst_ip
+        
+        #Isi dari pkt
+        #ethernet(dst='ff:ff:ff:ff:ff:ff',ethertype=2054,src='08:00:27:48:d4:ea')
+        #arp(dst_ip='192.168.90.9',dst_mac='00:00:00:00:00:00',hlen=6,hwtype=1,opcode=1,plen=4,proto=2048,src_ip='192.168.90.8',src_mac='08:00:27:48:d4:ea')
+
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet

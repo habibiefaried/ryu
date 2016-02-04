@@ -27,7 +27,7 @@ from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
-
+import pprint
 
 class SimpleSwitch(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
@@ -38,7 +38,7 @@ class SimpleSwitch(app_manager.RyuApp):
 
     def add_flow(self, datapath, in_port, dst, actions):
         ofproto = datapath.ofproto
-
+	self.logger.info("Apakah add_flow terpanggil?");
         match = datapath.ofproto_parser.OFPMatch(
             in_port=in_port, dl_dst=haddr_to_bin(dst))
 
@@ -66,7 +66,7 @@ class SimpleSwitch(app_manager.RyuApp):
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
-
+	# pprint.pprint(datapath)
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, msg.in_port)
 
         # learn a mac address to avoid FLOOD next time.

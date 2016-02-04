@@ -13,12 +13,28 @@
                "actions": [
                   {
                      "NXActionCT": {
-                        "actions": [], 
+                        "actions": [
+                           {
+                              "NXActionNAT": {
+                                 "experimenter": 8992, 
+                                 "flags": 2, 
+                                 "len": 48, 
+                                 "range_ipv4_max": "", 
+                                 "range_ipv4_min": "", 
+                                 "range_ipv6_max": "2001:1::ffff", 
+                                 "range_ipv6_min": "2001:1::1", 
+                                 "range_proto_max": null, 
+                                 "range_proto_min": null, 
+                                 "subtype": 36, 
+                                 "type": 65535
+                              }
+                           }
+                        ], 
                         "alg": 0, 
                         "experimenter": 8992, 
-                        "flags": 0, 
-                        "len": 24, 
-                        "recirc_table": 4, 
+                        "flags": 1, 
+                        "len": 72, 
+                        "recirc_table": 255, 
                         "subtype": 35, 
                         "type": 65535, 
                         "zone_ofs_nbits": 0, 
@@ -26,27 +42,20 @@
                      }
                   }
                ], 
-               "len": 32, 
+               "len": 80, 
                "type": 4
             }
          }
       ], 
       "match": {
          "OFPMatch": {
-            "length": 22, 
+            "length": 10, 
             "oxm_fields": [
                {
                   "OXMTlv": {
                      "field": "eth_type", 
                      "mask": null, 
-                     "value": 2048
-                  }
-               }, 
-               {
-                  "OXMTlv": {
-                     "field": "ct_state", 
-                     "mask": 32, 
-                     "value": 0
+                     "value": 34525
                   }
                }
             ], 

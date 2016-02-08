@@ -25,10 +25,9 @@ from ryu.lib.packet import ether_types
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-
+    mac_to_port = {}
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
-        self.mac_to_port = {}
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -83,7 +82,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         pkt = packet.Packet(msg.data)
         self.verbose_packet(pkt)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
-        ips = pkt.get_protocols(ethernet.ipv4)[0]
+        #ips = pkt.get_protocols(ethernet.ipv4)[0]
         
         #Isi dari pkt
         #ethernet(dst='ff:ff:ff:ff:ff:ff',ethertype=2054,src='08:00:27:48:d4:ea')

@@ -10,14 +10,13 @@ from ryu.app.wsgi import ControllerBase, WSGIApplication, route
 from ryu.lib import dpid as dpid_lib
 
 simple_switch_instance_name = 'simple_switch_api_app'
-url = '/simpleswitch/mactable/{dpid}'
 
 class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 
 	_CONTEXTS = {'wsgi': WSGIApplication}
 
 	def __init__(self, *args, **kwargs):
-		super(SimpleSwitch13, self).__init__(*args, **kwargs)
+		super(simple_switch_13.SimpleSwitch13, self).__init__(*args, **kwargs)
 		self.switches = {}
 		wsgi = kwargs['wsgi']
 		wsgi.register(SimpleSwitchController, {simple_switch_instance_name : self})
@@ -27,6 +26,7 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 		super(SimpleSwitchRest13, self).switch_features_handler(ev)
 		datapath = ev.msg.datapath
 		self.switches[datapath.id] = datapath #dpid
+		print datapath.id
 		self.mac_to_port.setdefault(datapath.id, {}) #dpid
 
 	def set_mac_to_port(self, dpid, entry):
@@ -59,30 +59,35 @@ class SimpleSwitchController(ControllerBase):
 		super(SimpleSwitchController,self).__init__(req, link, data,**config)
 		self.simpl_switch_spp = data[simple_switch_instance_name]
 
-	@route('simpleswitch', url, methods=['GET'], requirements={'dpid': dpid_lib.DPID_PATTERN})
+	@route('simpleswitch', '/', methods=['GET'])
+	def test(self, req, **kwargs):
+		body = {};
+		body["Hello"] = "World"
+		return Response(content_type='application/json', body=json.dumps(body))
+
+	@route('simpleswitch', '/simpleswitch/mactable/{dpid}', methods=['GET'], requirements={'dpid': dpid_lib.DPID_PATTERN})
 	def list_mac_table(self, req, **kwargs):
 		simple_switch = self.simpl_switch_spp
 		dpid = dpid_lib.str_to_dpid(kwargs['dpid'])
 
 		if dpid not in simple_switch.mac_to_port:
-			return Response(status=404)
+			return Response(content_type='application/json', body=json.dumps(simple_switch))
 
 		mac_table = simple_switch.mac_to_port.get(dpid, {})
-		body = json.dumps(mac_table)
-		return Response(content_type='application/json', body=body)
+		return Response(content_type='application/json', body=json.dumps(mac_table))
 
-	@route('simpleswitch', url, methods=['PUT'], requirements={'dpid': dpid_lib.DPID_PATTERN})
-		def put_mac_table(self, req, **kwargs):
-			simple_switch = self.simpl_switch_spp
-			dpid = dpid_lib.str_to_dpid(kwargs['dpid'])
-			new_entry = eval(req.body)
+	@route('simpleswitch', '/simpleswitch/mactable/{dpid}',  methods=['PUT'], requirements={'dpid': dpid_lib.DPID_PATTERN})
+	def put_mac_table(self, req, **kwargs):
+		simple_switch = self.simpl_switch_spp
+		dpid = dpid_lib.str_to_dpid(kwargs['dpid'])
+		new_entry = eval(req.body)
 
-			if dpid not in simple_switch.mac_to_port:
-				return Response(status=404)
+		if dpid not in simple_switch.mac_to_port:
+			return Response(status=404)
 
-			try:
-				mac_table = simple_switch.set_mac_to_port(dpid, new_entry)
-				body = json.dumps(mac_table)
-				return Response(content_type='application/json', body=body)
-			except Exception as e:
-				return Response(status=500)
+		try:
+			mac_table = simple_switch.set_mac_to_port(dpid, new_entry)
+			body = json.dumps(mac_table)
+			return Response(content_type='application/json', body=body)
+		except Exception as e:
+			return Response(status=500)

@@ -19,7 +19,7 @@ from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet, arp
+from ryu.lib.packet import ethernet, arp, ipv4
 from ryu.lib.packet import ether_types
 
 
@@ -83,8 +83,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         pkt = packet.Packet(msg.data)
         self.verbose_packet(pkt)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
-        ips = pkt.get_protocols(arp.arp)[0]
-        print ips.dst_ip
+        ips = pkt.get_protocols(ethernet.ipv4)[0]
         
         #Isi dari pkt
         #ethernet(dst='ff:ff:ff:ff:ff:ff',ethertype=2054,src='08:00:27:48:d4:ea')
@@ -98,15 +97,19 @@ class SimpleSwitch13(app_manager.RyuApp):
         src = eth.src
 
         dpid = datapath.id
-        self.mac_to_port.setdefault(dpid, {})
+        self.mac_to_port.setdefault(dpid, {}) #kalau dpid ga ada, maka berikan mac_to_port[dpid] {}
 
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
-        self.mac_to_port[dpid][src] = in_port
+        self.mac_to_port[dpid][src] = in_port #diberikan .src di mac_to_port dengan inport
 
-        if dst in self.mac_to_port[dpid]:
-            out_port = self.mac_to_port[dpid][dst]
+        #print "\n"
+        #print "MAC TO PORT"
+        #print self.mac_to_port
+
+        if dst in self.mac_to_port[dpid]: #kalau ada dst di mac_to_port
+            out_port = self.mac_to_port[dpid][dst] #set out_port seperti ini
         else:
             out_port = ofproto.OFPP_FLOOD
 
@@ -114,7 +117,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+            match = parser.OFPMatch(in_port=in_port, eth_dst=dst) #ubah disini kalau mau :D
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
@@ -122,6 +125,8 @@ class SimpleSwitch13(app_manager.RyuApp):
                 return
             else:
                 self.add_flow(datapath, 1, match, actions)
+                return
+
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data

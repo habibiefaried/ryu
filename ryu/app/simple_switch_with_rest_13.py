@@ -51,11 +51,15 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 
 				mac_table.update({entry_mac : entry_port})
 				return mac_table
+			else:
+				return {"pesan": "Entry Port not found"}
 		else:
 			return {"pesan": "Datapath not found"}
 
-#harus diganti keknya
-##Cuma masalah tipe data untuk pengaksesan
+	def update_datapath(self, dpid, entry):
+		datapath = self.switches.get(dpid)
+		
+
 class SimpleSwitchController(ControllerBase):
 	def __init__(self, req, link, data, **config):
 		super(SimpleSwitchController,self).__init__(req, link, data,**config)

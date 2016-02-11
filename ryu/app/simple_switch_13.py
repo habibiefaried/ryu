@@ -62,9 +62,12 @@ class SimpleSwitch13(app_manager.RyuApp):
                                     match=match, instructions=inst)
         datapath.send_msg(mod)
 
-    def verbose_packet(self, pkt):
-        for p in pkt.protocols:
-            print p
+    def del_flow(self, datapath, match):
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+        mod = parser.OFPFlowMod(datapath=datapath,command=ofproto.OFPFC_DELETE,out_port=ofproto.OFPP_ANY,out_group=ofproto.OFPG_ANY,match=match)
+        datapath.send_msg(mod)
+
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -80,13 +83,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         in_port = msg.match['in_port']
 
         pkt = packet.Packet(msg.data)
-        self.verbose_packet(pkt)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
-        #ips = pkt.get_protocols(ethernet.ipv4)[0]
-        
-        #Isi dari pkt
-        #ethernet(dst='ff:ff:ff:ff:ff:ff',ethertype=2054,src='08:00:27:48:d4:ea')
-        #arp(dst_ip='192.168.90.9',dst_mac='00:00:00:00:00:00',hlen=6,hwtype=1,opcode=1,plen=4,proto=2048,src_ip='192.168.90.8',src_mac='08:00:27:48:d4:ea')
 
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
@@ -100,12 +97,8 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
-        # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port #diberikan .src di mac_to_port dengan inport
 
-        #print "\n"
-        #print "MAC TO PORT"
-        #print self.mac_to_port
 
         if dst in self.mac_to_port[dpid]: #kalau ada dst di mac_to_port
             out_port = self.mac_to_port[dpid][dst] #set out_port seperti ini

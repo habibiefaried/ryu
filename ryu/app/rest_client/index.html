@@ -5,9 +5,50 @@
 		<link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+		<script src="js/jquery-1.12.0.min.js"></script>
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-		<script src="js/jquery-1.12.0.min.js"></script>
+		<script>
+		var tables = {};
+
+		function deleteEntry(number){
+			console.log(tables[number]);
+		}
+
+		function updateTable(dipds){
+			tables = {};
+			var isi = "";
+			var iterasi = 0;
+			jQuery.each(dipds, function(i, macs){
+				jQuery.each(macs, function(j, ports){
+					iterasi++;
+					var obj = {};
+					obj.dpid = i;
+					obj.mac = j;
+					obj.port = ports;
+					tables[iterasi] = obj;
+
+					isi += "<tr>";
+					isi += "<td>"+i+"</td>";
+					isi += "<td>"+j+"</td>";
+					isi += "<td>"+ports+"</td>";
+					isi += "<td><a href='#' onclick='deleteEntry("+iterasi+")'>Hapus</a></td>";
+					isi += "</tr>";
+				});
+			});
+			$(".fill").html(isi);
+		}
+
+		$(document).ready(function(){
+			$.ajax({
+			  method: "GET",
+			  crossDomain: true,
+			  url: "http://localhost:8080/simpleswitch/mactable",
+			}).done(function( msg ) {
+			    updateTable(JSON.parse(msg));
+			});
+		});
+		</script>
 	</head>
 	<body>
 	<h1>OpenVSwitch Entries</h1><br>
@@ -16,24 +57,21 @@
 	  <div class="col-md-8"><table class="table table-hover">
 		<thead> 
 			<tr> 
-				<th>#</th>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Username</th>
+				<th>DPID</th>
+				<th>MAC Address</th>
+				<th>Output Port</th>
+				<th>Aksi</th>
 			</tr>
 		</thead>
-		<tbody>
-			<tr> 
-				<th scope="row">1</th>
-				<td>Mark</td>
-				<td>Otto</td>
-				<td><button class="btn btn-info" type="submit">Edit</button></td>
-			</tr>
+		<tbody class="fill">
 		</tbody>
-	</table></div>
+	</table>
+	</div>
 	  <div class="col-md-2"></div>
 	</div>
+	
 	<hr><hr>
+	
 	<div class="row">
 	  <div class="col-md-2"></div>
 	  <div class="col-md-8"><h2> Edit Entry Form</h2>

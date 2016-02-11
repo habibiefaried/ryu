@@ -52,12 +52,15 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 				mac_table.update({entry_mac : entry_port})
 				return mac_table
 			else:
-				return {"pesan": "Entry Port not found"}
+				return {"pesan": "Entry Port is already registered"}
 		else:
 			return {"pesan": "Datapath not found"}
 
-	def update_datapath(self, dpid, entry):
+	def deleteFlow(self, dpid, entry):
+		mac_table = self.mac_to_port.setdefault(dpid, {})
 		datapath = self.switches.get(dpid)
+		port = entry['port']
+		mac = entry['mac']
 		
 
 class SimpleSwitchController(ControllerBase):
@@ -101,3 +104,17 @@ class SimpleSwitchController(ControllerBase):
 			return Response(content_type='application/json', body=body)
 		except Exception as e:
 			return Response(status=500, body="Internal Server Error")
+
+	@route('simpleswitch','/simpleswitch/mactable/delete/{dpid}', methods=['POST'])
+	def del_mac_table(self, req, **kwargs):
+		dpid = int(kwargs['dpid'])
+		if dpid not in self.simpl_switch_spp.mac_to_port:
+			return Response(status=404, body="DPID Not Found")
+
+		params = eval(req.body)
+		mac_table = self.simpl_switch_spp.mac_to_port.get(dpid, {})
+		if params['mac'] not in mac_table:
+			return Response(status=404, body="DPID Found, but not the mac address")
+
+		del mac_table[params['mac']]
+		return Response(content_type='application/json', body=json.dumps(self.simpl_switch_spp.deleteFlow(dpid, params))) 

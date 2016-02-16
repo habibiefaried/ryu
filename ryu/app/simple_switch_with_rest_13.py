@@ -59,9 +59,30 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 	def deleteFlow(self, dpid, entry):
 		mac_table = self.mac_to_port.setdefault(dpid, {})
 		datapath = self.switches.get(dpid)
-		port = entry['port']
-		mac = entry['mac']
+		entry_port = entry['port']
+		entry_mac = entry['mac']
 		
+		if datapath is not None:
+			parser = datapath.ofproto_parser
+			print mac_table
+			if entry_port in mac_table.values():
+				for mac, port in mac_table.items():
+
+					#from known device to new device
+					match = parser.OFPMatch(in_port=port, eth_dst=entry_mac)
+					self.del_flow(datapath, match)
+
+					#from new device to known device
+					match = parser.OFPMatch(in_port=entry_port, eth_dst=mac)
+					self.del_flow(datapath, match)
+
+				del mac_table[mac]
+			else:
+				return {"pesan": "Entry Port not found"}
+		else:
+			return {"pesan": "Datapath not found"}
+
+		return mac_table
 
 class SimpleSwitchController(ControllerBase):
 	def __init__(self, req, link, data, **config):
@@ -111,10 +132,12 @@ class SimpleSwitchController(ControllerBase):
 		if dpid not in self.simpl_switch_spp.mac_to_port:
 			return Response(status=404, body="DPID Not Found")
 
-		params = eval(req.body)
+		params = {}
+		params['mac'] = req.params['mac']
+		params['port'] = int(req.params['port'])
+
 		mac_table = self.simpl_switch_spp.mac_to_port.get(dpid, {})
 		if params['mac'] not in mac_table:
 			return Response(status=404, body="DPID Found, but not the mac address")
 
-		del mac_table[params['mac']]
 		return Response(content_type='application/json', body=json.dumps(self.simpl_switch_spp.deleteFlow(dpid, params))) 

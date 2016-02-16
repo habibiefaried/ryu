@@ -19,7 +19,7 @@
 			  url: "http://localhost:8080/simpleswitch/mactable/delete/"+tables[number].dpid,
 			}).done(function( msg ) {
 				var data = JSON.parse(msg);
-			    updateTable();
+			    updateTable(data);
 			}); 
 		}
 

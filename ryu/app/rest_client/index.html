@@ -37,6 +37,7 @@
 					tables[iterasi] = obj;
 
 					isi += "<tr>";
+					isi += "<td>"+iterasi+"</td>";
 					isi += "<td>"+i+"</td>";
 					isi += "<td>"+j+"</td>";
 					isi += "<td>"+ports+"</td>";
@@ -65,6 +66,7 @@
 	  <div class="col-md-8"><table class="table table-hover">
 		<thead> 
 			<tr> 
+				<th>Path ID</th>
 				<th>DPID</th>
 				<th>MAC Address</th>
 				<th>Output Port</th>
@@ -82,25 +84,24 @@
 	
 	<div class="row">
 	  <div class="col-md-2"></div>
-	  <div class="col-md-8"><h2> Edit Entry Form</h2>
+	  <div class="col-md-8"><h2> Flow Editor </h2>
 	<form>
 	  <div class="form-group">
-	    <label for="exampleInputEmail1">Email address</label>
-	    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+	    <label>ID</label>
+	    <select id="path_id" class="form-control">
+	    </select>
 	  </div>
 	  <div class="form-group">
-	    <label for="exampleInputPassword1">Password</label>
-	    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+	    <label>DPID</label>
+	    <input type="text" class="form-control" readonly id="dpid">
 	  </div>
 	  <div class="form-group">
-	    <label for="exampleInputFile">File input</label>
-	    <input type="file" id="exampleInputFile">
-	    <p class="help-block">Example block-level help text here.</p>
+	    <label>MAC Address</label>
+	    <input type="text" class="form-control" readonly id="mac">
 	  </div>
-	  <div class="checkbox">
-	    <label>
-	      <input type="checkbox"> Check me out
-	    </label>
+	  <div class="form-group">
+	    <label>Output Port</label>
+	    <input type="text" class="form-control" id="port" placeholder="Choose Output Port">
 	  </div>
 	  <button type="submit" class="btn btn-default">Submit</button>
 	</form></div>

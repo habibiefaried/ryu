@@ -64,7 +64,7 @@
 				var path_id = $("#path_id").val();
 				$("#dpid").val(tables[path_id].dpid);
 				$("#mac").val(tables[path_id].mac);
-				$("#port").val(tables[path_id].port);
+				$("#old_port").val(tables[path_id].port);
 			});
 		});
 		</script>
@@ -110,7 +110,11 @@
 	    <input type="text" class="form-control" readonly id="mac">
 	  </div>
 	  <div class="form-group">
-	    <label>Output Port</label>
+	    <label>Current Output Port</label>
+	    <input type="text" class="form-control" readonly id="old_port">
+	  </div>
+	  <div class="form-group">
+	    <label>New Output Port</label>
 	    <input type="text" class="form-control" id="port" placeholder="Choose Output Port">
 	  </div>
 	  <button type="submit" class="btn btn-default">Submit</button>

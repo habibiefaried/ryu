@@ -23,10 +23,10 @@
 		}
 
 		function updateTable(dipds){
-			console.log(dipds);
 			tables = {};
 			var isi = "";
 			var iterasi = 0;
+			var select_id = "<option></option>";
 			$.each(dipds, function(i, macs){
 				$.each(macs, function(j, ports){
 					iterasi++;
@@ -35,6 +35,8 @@
 					obj.mac = j;
 					obj.port = ports;
 					tables[iterasi] = obj;
+
+					select_id += "<option>"+iterasi+"</option>";
 
 					isi += "<tr>";
 					isi += "<td>"+iterasi+"</td>";
@@ -46,6 +48,7 @@
 				});
 			});
 			$(".fill").html(isi);
+			$("#path_id").html(select_id);
 		}
 
 		$(document).ready(function(){
@@ -55,6 +58,13 @@
 			  url: "http://localhost:8080/simpleswitch/mactable",
 			}).done(function( msg ) {
 			    updateTable(msg);
+			});
+
+			$("#path_id").change(function(){
+				var path_id = $("#path_id").val();
+				$("#dpid").val(tables[path_id].dpid);
+				$("#mac").val(tables[path_id].mac);
+				$("#port").val(tables[path_id].port);
 			});
 		});
 		</script>

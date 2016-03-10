@@ -82,7 +82,7 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 		else:
 			return {"pesan": "Datapath not found"}
 
-		return mac_table
+		return self.mac_to_port
 
 class SimpleSwitchController(ControllerBase):
 	def __init__(self, req, link, data, **config):

@@ -17,18 +17,18 @@
 			  crossDomain: true,
 			  data: { mac: tables[number].mac, port: tables[number].port },
 			  url: "http://localhost:8080/simpleswitch/mactable/delete/"+tables[number].dpid,
-			}).done(function( msg ) {
-				var data = JSON.parse(msg);
-			    updateTable(data);
+			}).done(function(msg) {
+			    updateTable(msg);
 			}); 
 		}
 
 		function updateTable(dipds){
+			console.log(dipds);
 			tables = {};
 			var isi = "";
 			var iterasi = 0;
-			jQuery.each(dipds, function(i, macs){
-				jQuery.each(macs, function(j, ports){
+			$.each(dipds, function(i, macs){
+				$.each(macs, function(j, ports){
 					iterasi++;
 					var obj = {};
 					obj.dpid = i;
@@ -53,7 +53,7 @@
 			  crossDomain: true,
 			  url: "http://localhost:8080/simpleswitch/mactable",
 			}).done(function( msg ) {
-			    updateTable(JSON.parse(msg));
+			    updateTable(msg);
 			});
 		});
 		</script>

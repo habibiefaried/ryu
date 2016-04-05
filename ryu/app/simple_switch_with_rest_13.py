@@ -82,7 +82,42 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 		else:
 			return {"pesan": "Datapath not found"}
 
-		return mac_table
+		return self.mac_to_port
+
+	def editFlow(self, dpid, entry, new_port):
+		mac_table = self.mac_to_port.setdefault(dpid, {})
+		datapath = self.switches.get(dpid)
+		entry_port = entry['port']
+		entry_mac = entry['mac']
+		
+		if datapath is not None:
+			parser = datapath.ofproto_parser
+			print mac_table
+			if entry_port in mac_table.values():
+				for mac, port in mac_table.items():
+
+					#from known device to new device
+					match = parser.OFPMatch(in_port=port, eth_dst=entry_mac)
+					self.del_flow(datapath, match)
+
+					#from new device to known device
+					match = parser.OFPMatch(in_port=entry_port, eth_dst=mac)
+					self.del_flow(datapath, match)
+
+				del mac_table[mac]
+
+				#Algoritma addflow
+				new_entry = {}
+				new_entry['port'] = entry_port
+				new_entry['mac'] = new_port
+				self.set_mac_to_port(self, dpid, new_entry)
+				print "Edit Sukses"
+			else:
+				return {"pesan": "Entry Port not found"}
+		else:
+			return {"pesan": "Datapath not found"}
+
+		return self.mac_to_port
 
 class SimpleSwitchController(ControllerBase):
 	def __init__(self, req, link, data, **config):
@@ -156,7 +191,6 @@ class SimpleSwitchController(ControllerBase):
 		if params['mac'] not in mac_table:
 			return Response(status=404, body="DPID Found, but not the mac address")
 
-
 		#delete flow
 		self.simpl_switch_spp.deleteFlow(dpid, params)
 
@@ -171,4 +205,3 @@ class SimpleSwitchController(ControllerBase):
 			return Response(content_type='application/json', body=body)
 		except Exception as e:
 			return Response(status=500, body="Internal Server Error")
-

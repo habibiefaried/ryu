@@ -18,7 +18,7 @@
 			  data: { mac: tables[number].mac, port: tables[number].port },
 			  url: "http://localhost:8080/simpleswitch/mactable/delete/"+tables[number].dpid,
 			}).done(function(msg) {
-			    updateTable(msg);
+			    updateTable(JSON.parse(msg));
 			}); 
 		}
 
@@ -57,7 +57,7 @@
 			  crossDomain: true,
 			  url: "http://localhost:8080/simpleswitch/mactable",
 			}).done(function( msg ) {
-			    updateTable(msg);
+			    updateTable(JSON.parse(msg));
 			});
 
 			$("#path_id").change(function(){
@@ -80,7 +80,7 @@
 				  data: dataedit,
 				  url: "http://localhost:8080/simpleswitch/mactable/edit/"+dataedit.dpid,
 				}).done(function(msg) {
-				    updateTable(msg);
+				    updateTable(JSON.parse(msg));
 				}); 
 				
 			});

@@ -76,7 +76,7 @@ class SimpleSwitchRest13(simple_switch_13.SimpleSwitch13):
 					match = parser.OFPMatch(in_port=entry_port, eth_dst=mac)
 					self.del_flow(datapath, match)
 
-				del mac_table[mac]
+				del mac_table[entry_mac]
 			else:
 				return {"pesan": "Entry Port not found"}
 		else:
@@ -187,6 +187,7 @@ class SimpleSwitchController(ControllerBase):
 		params['mac'] = req.params['mac']
 		params['port'] = int(req.params['old_port'])
 
+		print params
 		mac_table = self.simpl_switch_spp.mac_to_port.get(dpid, {})
 		if params['mac'] not in mac_table:
 			return Response(status=404, body="DPID Found, but not the mac address")
@@ -196,12 +197,11 @@ class SimpleSwitchController(ControllerBase):
 
 		#add flow again
 		new_entry = {}
-		new_entry['mac'] = req.new_entry['mac']
-		new_entry['port'] = int(req.new_entry['new_port'])
+		new_entry['mac'] = req.params['mac']
+		new_entry['port'] = int(req.params['new_port'])
 
 		try:
 			mac_table = self.simpl_switch_spp.set_mac_to_port(dpid, new_entry)
-			body = json.dumps(mac_table)
-			return Response(content_type='application/json', body=body)
+			return Response(content_type='application/json', body=json.dumps(self.simpl_switch_spp.mac_to_port))
 		except Exception as e:
 			return Response(status=500, body="Internal Server Error")
